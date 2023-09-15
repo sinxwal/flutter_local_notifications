@@ -12,11 +12,16 @@ void main() {
       DarwinInitializationSettings();
   const DarwinInitializationSettings initializationSettingsMacOS =
       DarwinInitializationSettings();
-  const InitializationSettings initializationSettings = InitializationSettings(
-    android: initializationSettingsAndroid,
-    iOS: initializationSettingsIOS,
-    macOS: initializationSettingsMacOS,
+  final LinuxInitializationSettings initializationSettingsLinux =
+      LinuxInitializationSettings(
+    defaultActionName: 'Open notification',
+    defaultIcon: AssetsLinuxIcon('icons/app_icon.png'),
   );
+  final InitializationSettings initializationSettings = InitializationSettings(
+      android: initializationSettingsAndroid,
+      iOS: initializationSettingsIOS,
+      macOS: initializationSettingsMacOS,
+      linux: initializationSettingsLinux);
   late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
   group('initialize()', () {
     setUpAll(() async {
