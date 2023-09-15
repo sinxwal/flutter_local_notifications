@@ -58,6 +58,11 @@ abstract class FlutterLocalNotificationsPlatform extends PlatformInterface {
     throw UnimplementedError('cancel() has not been implemented');
   }
 
+  /// Remove notofications grouped by ThreadID.
+  Future<void> cancelByThread(String threadId) async {
+    throw UnimplementedError('cancelByThread() has not been implemented');
+  }
+
   /// Cancels/removes all notifications. This applies to notifications that have been scheduled and those that have already been presented.
   Future<void> cancelAll() async {
     throw UnimplementedError('cancelAll() has not been implemented');

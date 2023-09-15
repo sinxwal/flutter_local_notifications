@@ -285,6 +285,18 @@ class FlutterLocalNotificationsPlugin {
     }
   }
 
+  /// Cancel/remove the group of notifications with the specified threadId.
+  Future<void> cancelByThread(String threadId) async {
+    if (kIsWeb) {
+      return;
+    }
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      return;
+    } else {
+      await FlutterLocalNotificationsPlatform.instance.cancelByThread(threadId);
+    }
+  }
+
   /// Cancels/removes all notifications.
   ///
   /// This applies to notifications that have been scheduled and those that

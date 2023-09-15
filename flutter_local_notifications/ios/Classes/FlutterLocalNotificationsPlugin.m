@@ -23,6 +23,7 @@ NSString *const SHOW_METHOD = @"show";
 NSString *const ZONED_SCHEDULE_METHOD = @"zonedSchedule";
 NSString *const PERIODICALLY_SHOW_METHOD = @"periodicallyShow";
 NSString *const CANCEL_METHOD = @"cancel";
+NSString *const CANCEL_BY_THREAD_METHOD = @"cancelByThread";
 NSString *const CANCEL_ALL_METHOD = @"cancelAll";
 NSString *const PENDING_NOTIFICATIONS_REQUESTS_METHOD =
     @"pendingNotificationRequests";
@@ -172,6 +173,8 @@ static FlutterError *getFlutterError(NSError *error) {
     [self requestPermissions:call.arguments result:result];
   } else if ([CANCEL_METHOD isEqualToString:call.method]) {
     [self cancel:((NSNumber *)call.arguments) result:result];
+  } else if ([CANCEL_BY_THREAD_METHOD isEqualToString:call.method]) {
+    [self cancelByThread:((NSString *)call.arguments) result:result];
   } else if ([CANCEL_ALL_METHOD isEqualToString:call.method]) {
     [self cancelAll:result];
   } else if ([GET_NOTIFICATION_APP_LAUNCH_DETAILS_METHOD
@@ -785,6 +788,47 @@ static FlutterError *getFlutterError(NSError *error) {
         break;
       }
     }
+  }
+  result(nil);
+}
+
+- (void)cancelByThread:(NSString *)threadIdentifier result:(FlutterResult _Nonnull)result {
+  if (@available(iOS 10.0, *)) {
+
+    NSLog(@"threadIdentifierGroup: %@", threadIdentifier);
+
+    UNUserNotificationCenter *center =
+        [UNUserNotificationCenter currentNotificationCenter];
+
+    [center getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> *_Nonnull notifications) {
+      @try{ 
+        NSMutableArray<NSString *> *idsToRemove = [[NSMutableArray alloc] init];
+
+        for (UNNotification *notification in notifications) {
+          NSString *notificationIdentifier = notification.request.identifier;
+          NSString *notificationThreadIdentifier = notification.request.content.threadIdentifier;
+  
+          NSLog(@"identifier: %@", notificationIdentifier);
+          NSLog(@"threadIdentifier: %@", notificationThreadIdentifier);
+
+          if (notificationIdentifier != nil && notificationThreadIdentifier != nil && threadIdentifier != nil) {
+            NSLog(notificationThreadIdentifier == threadIdentifier ? @"equals": @"notequals");
+            if ([notificationThreadIdentifier isEqualToString:threadIdentifier]) {
+              NSLog(@"addObject: %@", notificationIdentifier);
+              [idsToRemove addObject:notificationIdentifier];
+            }
+          }
+        }
+    
+        NSLog(@"idsToRemove: %@", idsToRemove);
+        [center removePendingNotificationRequestsWithIdentifiers:idsToRemove];
+        [center removeDeliveredNotificationsWithIdentifiers:idsToRemove];
+      } @catch (NSException* exception) {
+        NSLog(@"Got exception: %@; Reason: %@", exception.name, exception.reason);
+      }
+    }];
+  } else {
+     NSLog(@"Min iOS 10.0 is required");
   }
   result(nil);
 }

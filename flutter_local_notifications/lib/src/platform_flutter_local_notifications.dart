@@ -41,6 +41,10 @@ class MethodChannelFlutterLocalNotificationsPlugin
   }
 
   @override
+  Future<void> cancelByThread(String threadId) =>
+      _channel.invokeMethod('cancelByThread', threadId);
+
+  @override
   Future<void> cancelAll() => _channel.invokeMethod('cancelAll');
 
   @override
